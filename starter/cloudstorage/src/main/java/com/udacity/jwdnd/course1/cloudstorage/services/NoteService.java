@@ -22,33 +22,28 @@ public class NoteService {
 
     public Integer addNewNote(NoteForm newNote){
         Integer userId = WorkFlowHelper.getUser().getUserid();
-        boolean noteExists = WorkFlowHelper.getUserNotes().stream().anyMatch(element -> element.getNoteTitle().contains(newNote.getNoteTitle()));
         Integer rows = null;
-        if(newNote!=null){
-            newNote.setUserId(userId);
-        }
 
-        if(noteExists){
-            rows=updateNote(newNote);
-            if(rows!=null && rows.intValue()>0){
-                return rows;
-            }
+        if(newNote.getNoteId()!=null){
+            return updateNote(newNote);
         } else{
-            rows = noteMapper.insertNote(new Note(null, newNote.getNoteTitle(), newNote.getNoteDescription(), userId));
+            Note userNote = new Note(null, newNote.getNoteTitle(), newNote.getNoteDescription(), userId);
+            rows = noteMapper.insertNote(userNote);
             if(rows!=null && rows.intValue()>0){
-                WorkFlowHelper.setUserNotes(newNote);
+                WorkFlowHelper.setUserNotes(new NoteForm(userNote.getNoteid(), userNote.getNoteTitle(), userNote.getNoteDescription(), userId));
                 return rows;
             }
         }
-
-        return 0;
+        return rows;
     }
 
     public Integer updateNote(NoteForm newNote){
-        NoteForm editNote = WorkFlowHelper.getUserNotes().stream().filter(element -> element.getNoteTitle().equals(newNote.getNoteTitle()))
+        NoteForm editNote = WorkFlowHelper.getUserNotes().stream().filter(element -> element.getNoteId().equals(newNote.getNoteId()))
                 .findAny().orElse(null);
-        Integer rows = noteMapper.updateRow(editNote.getNoteDescription(), editNote.getNoteTitle(), editNote.getUserId());
+        Note userNote = new Note(newNote.getNoteId(), newNote.getNoteTitle(), newNote.getNoteDescription(), editNote.getUserId());
+        Integer rows = noteMapper.updateRow(userNote);
         if(rows!=null && rows.intValue()>0){
+            editNote.setNoteTitle(newNote.getNoteTitle());
             editNote.setNoteDescription(newNote.getNoteDescription());
         }
         return rows;
@@ -61,10 +56,19 @@ public class NoteService {
         if(!CollectionUtils.isEmpty(userNotes)){
             for(Note note: userNotes){
                 if(note.getUserId().equals(user.getUserid())){
-                    WorkFlowHelper.setUserNotes(new NoteForm(note.getNoteTitle(), note.getNoteDescription(), user.getUserid()));
+                    WorkFlowHelper.setUserNotes(new NoteForm(note.getNoteid(),note.getNoteTitle(), note.getNoteDescription(), user.getUserid()));
                 }
             }
         }
         return WorkFlowHelper.getUserNotes();
+    }
+
+    public Integer deleteUserNotes(Integer noteId){
+        User user = WorkFlowHelper.getUser();
+        Integer rows = noteMapper.deleteNotes(noteId, user.getUserid());
+        if(rows!=null && rows.intValue()>0){
+            WorkFlowHelper.userNotes.removeIf(element -> (element.getNoteId().equals(noteId)));
+        }
+        return rows;
     }
 }

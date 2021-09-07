@@ -13,10 +13,13 @@ public interface NoteMapper {
     @Options(useGeneratedKeys = true, keyProperty = "noteid")
     Integer insertNote(Note note);
 
-    @Update("UPDATE NOTES SET notedescription=#{noteDescription} where notetitle=#{noteTitle} "+
-    "and userid=#{userId}")
-    Integer updateRow(String noteDescription, String noteTitle, Integer userId);
+    @Update("UPDATE NOTES SET notetitle=#{noteTitle}, notedescription=#{noteDescription} WHERE noteid=#{noteid} "+
+    "AND userid=#{userId}")
+    Integer updateRow(Note userNote);
 
     @Select("SELECT * FROM NOTES WHERE userid=#{userId}")
     List<Note> getUserNotes(Integer userId);
+
+    @Delete("DELETE FROM NOTES WHERE noteid=#{noteId} AND userid=#{userId}")
+    Integer deleteNotes(Integer noteId, Integer userId);
 }

@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.controllers;
 
+import com.udacity.jwdnd.course1.cloudstorage.models.CredentialForm;
 import com.udacity.jwdnd.course1.cloudstorage.models.NoteForm;
 import com.udacity.jwdnd.course1.cloudstorage.models.UserFile;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
@@ -49,17 +50,7 @@ public class FileController {
         } else{
             model.addAttribute("fileUploadSuccess", true);
         }
-
-        //get all files of the user to display
-        List<UserFile> files = WorkFlowHelper.userFiles;
-        if(!files.isEmpty()){
-            List<String> filenames = new ArrayList<>();
-            for(UserFile file : files){
-                filenames.add(file.getFileName());
-            }
-            model.addAttribute("filenames", filenames);
-        }
-        model.addAttribute("newnote", new NoteForm());
+        loadDataForDisplay(model);
         return "home";
     }
 
@@ -83,8 +74,12 @@ public class FileController {
     @GetMapping("/deleteFile/{file}")
     public String deleteFile(@PathVariable("file") String filename, Model model){
         boolean isFileDeleted = fileService.deleteUserFile(filename);
+        loadDataForDisplay(model);
+        model.addAttribute("isFileDeleted", isFileDeleted);
+        return "home";
+    }
 
-        //get all files of the user to display
+    public void loadDataForDisplay(Model model){
         List<UserFile> files = WorkFlowHelper.userFiles;
         if(!files.isEmpty()){
             List<String> filenames = new ArrayList<>();
@@ -93,8 +88,9 @@ public class FileController {
             }
             model.addAttribute("filenames", filenames);
         }
-        model.addAttribute("isFileDeleted", isFileDeleted);
+        model.addAttribute("notes", WorkFlowHelper.getUserNotes());
+        model.addAttribute("credentials", WorkFlowHelper.getUserCredentials());
         model.addAttribute("newnote", new NoteForm());
-        return "home";
+        model.addAttribute("newcredential", new CredentialForm());
     }
 }

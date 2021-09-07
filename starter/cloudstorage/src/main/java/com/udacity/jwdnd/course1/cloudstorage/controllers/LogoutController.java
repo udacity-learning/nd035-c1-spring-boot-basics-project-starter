@@ -16,6 +16,7 @@ public class LogoutController {
         WorkFlowHelper.userFiles.clear();
         WorkFlowHelper.setUser(null);
         WorkFlowHelper.userNotes.clear();
+        WorkFlowHelper.userCredentials.clear();
         return "login";
     }
 }
