@@ -1,9 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
-import com.udacity.jwdnd.course1.cloudstorage.pageObjects.CredentialsPageObject;
-import com.udacity.jwdnd.course1.cloudstorage.pageObjects.HomePageObject;
-import com.udacity.jwdnd.course1.cloudstorage.pageObjects.LoginPageObject;
-import com.udacity.jwdnd.course1.cloudstorage.pageObjects.SignUpPageObject;
+import com.udacity.jwdnd.course1.cloudstorage.pageObjects.*;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
@@ -20,10 +17,6 @@ class CloudStorageApplicationTests {
 	private int port;
 
 	private WebDriver driver;
-	private static String username;
-	private static String password;
-	private static String firstName;
-	private static String lastName;
 	private static String baseUrl;
 
 	private SignUpPageObject signUp;
@@ -33,10 +26,6 @@ class CloudStorageApplicationTests {
 	@BeforeAll
 	static void beforeAll() {
 		WebDriverManager.chromedriver().setup();
-		username = "johnnash";
-		password = "johnnash";
-		firstName = "john";
-		lastName = "nash";
 		baseUrl = "http://localhost:";
 	}
 
@@ -48,19 +37,20 @@ class CloudStorageApplicationTests {
 
 	@AfterEach
 	public void afterEach() {
+
 		if (this.driver != null) {
 			driver.quit();
 		}
 	}
 
-	public void signupSetup(){
+	public void signupSetup(String firstName, String lastName, String username, String password){
 		getSignupPage();
 		signUp = new SignUpPageObject(driver);
 		signUp.setSignupFormAndSubmit(firstName, lastName, username, password);
 		signUp.getSignupSubmitBtn().submit();
 	}
 
-	public void loginUser(){
+	public void loginUser(String username, String password){
 		getLoginPage();
 		loginPageObject = new LoginPageObject(driver);
 		loginPageObject.userLogin(username, password);
@@ -87,7 +77,7 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void submitSignupFormTest(){
-		signupSetup();
+		signupSetup("john", "nash", "johnnash","johnnash");
 		String actualMessage = signUp.getSignupSuccess().getText();
 		String expectedMessage = "You successfully signed up! Please continue to the login page.";
 		Assertions.assertEquals(expectedMessage, actualMessage);
@@ -95,11 +85,15 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void loginTest(){
+
+		String username = "johnnash1";
+		String password = "johnnash";
+
 		//signup setup
-		signupSetup();
+		signupSetup("john", "nash", username,password);
 
 		//login test
-		loginUser();
+		loginUser(username, password);
 
 		Assertions.assertEquals("Home", driver.getTitle());
 
@@ -119,20 +113,23 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void noteCreationTest() throws Exception{
+		String username = "johnnash2";
+		String password = "johnnash";
+
 		//signup setup
-		signupSetup();
+		signupSetup("john", "nash", username,password);
 
-		//login user
-		loginUser();
+		//login test
+		loginUser(username, password);
 
-		HomePageObject homePageObject = new HomePageObject(driver);
+		NotePageObject notePageObject = new NotePageObject(driver);
 
 		String noteTitle = "test1";
 		String noteDesc = "this is test1";
-		homePageObject.createNote(noteTitle, noteDesc);
+		notePageObject.createNote(noteTitle, noteDesc);
 
 		// exists
-		WebElement actualResult = homePageObject.getNoteCreated(noteTitle);
+		WebElement actualResult = notePageObject.getNoteCreated(noteTitle);
 		Assertions.assertNotNull(actualResult);
 
 		// view Description
@@ -140,30 +137,35 @@ class CloudStorageApplicationTests {
 		String actualDesc = actualResult.findElement(By.id("noteDescription")).getText();
 		Assertions.assertEquals(noteTitle, actualTitle);
 		Assertions.assertEquals(noteDesc, actualDesc);
+
+		HomePageObject homePageObject = new HomePageObject(driver);
+		homePageObject.getLogoutBtn().submit();
 	}
 
 	@Test
 	public void noteEditAndDelete() throws Exception{
+		String username = "johnnash3";
+		String password = "johnnash";
+
 		//signup setup
-		signupSetup();
+		signupSetup("john", "nash", username,password);
 
-		//login user
-		loginUser();
+		//login test
+		loginUser(username, password);
 
-		HomePageObject homePageObject = new HomePageObject(driver);
+		NotePageObject notePageObject = new NotePageObject(driver);
 
 		String noteTitle = "test1";
 		String noteDesc = "this is test1";
-		homePageObject.createNote(noteTitle, noteDesc);
-
+		notePageObject.createNote(noteTitle, noteDesc);
 
 		// edit note
 		String newNoteTitle = "newtest1";
 		String newNoteDesc = "this is new test1";
-		homePageObject.editNote(noteTitle, newNoteTitle, newNoteDesc);
+		notePageObject.editNote(noteTitle, newNoteTitle, newNoteDesc);
 
 		// exists
-		WebElement actualResult = homePageObject.getNoteCreated(newNoteTitle);
+		WebElement actualResult = notePageObject.getNoteCreated(newNoteTitle);
 		Assertions.assertNotNull(actualResult);
 
 		// view new note
@@ -173,21 +175,25 @@ class CloudStorageApplicationTests {
 		Assertions.assertEquals(newNoteDesc, actualDesc);
 
 		// delete note
-		boolean isDeleted = homePageObject.deleteNote(newNoteTitle);
+		boolean isDeleted = notePageObject.deleteNote(newNoteTitle);
 		Assertions.assertTrue(isDeleted);
+
+		HomePageObject homePageObject = new HomePageObject(driver);
+		homePageObject.getLogoutBtn().submit();
 	}
 
 	@Test
 	public void credCreationTest(){
-		//signup setup
-		signupSetup();
+		String username = "johnnash4";
+		String password = "johnnash";
 
-		//login user
-		loginUser();
+		//signup setup
+		signupSetup("john", "nash", username,password);
+
+		//login test
+		loginUser(username, password);
 
 		String url = "http://www.google.com/";
-		String username = "johanash";
-		String password = "johnnash";
 		CredentialsPageObject credentialsPageObject = new CredentialsPageObject(driver);
 		credentialsPageObject.createCred(url, username, password);
 
@@ -202,26 +208,30 @@ class CloudStorageApplicationTests {
 		Assertions.assertEquals(url, actualUrl);
 		Assertions.assertEquals(username, actualUsername);
 		Assertions.assertNotEquals(password, actualPassword);
+
+		HomePageObject homePageObject = new HomePageObject(driver);
+		homePageObject.getLogoutBtn().submit();
 	}
 
 	@Test
 	public void credEditAndDelete() throws Exception {
-		//signup setup
-		signupSetup();
+		String username = "johnnash5";
+		String password = "johnnash";
 
-		//login user
-		loginUser();
+		//signup setup
+		signupSetup("john", "nash", username,password);
+
+		//login test
+		loginUser(username, password);
 
 		String url = "http://www.google.com/";
-		String username = "johanash";
-		String password = "johnnash";
 		CredentialsPageObject credentialsPageObject = new CredentialsPageObject(driver);
 		credentialsPageObject.createCred(url, username, password);
 
 		// edit cred
 		String urlNew = "http://www.google.com/editcred";
-		String usernameNew = "johanash1";
-		String passwordNew = "johnnash1";
+		String usernameNew = "johanash6";
+		String passwordNew = "johnnash6";
 		credentialsPageObject.editCred(username, urlNew, usernameNew, passwordNew);
 
 		// exists
@@ -239,5 +249,8 @@ class CloudStorageApplicationTests {
 		// delete Credentials
 		boolean isDeleted = credentialsPageObject.deleteCred(usernameNew);
 		Assertions.assertTrue(isDeleted);
+
+		HomePageObject homePageObject = new HomePageObject(driver);
+		homePageObject.getLogoutBtn().submit();
 	}
 }
