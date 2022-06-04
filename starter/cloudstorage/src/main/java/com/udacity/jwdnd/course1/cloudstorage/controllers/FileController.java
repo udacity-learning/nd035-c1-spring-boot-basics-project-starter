@@ -92,5 +92,7 @@ public class FileController {
         model.addAttribute("credentials", WorkFlowHelper.getUserCredentials());
         model.addAttribute("newnote", new NoteForm());
         model.addAttribute("newcredential", new CredentialForm());
+        model.addAttribute("activeTab1", true); // this one is to keep current (Files) tab active
+        model.addAttribute("fileTabPaneActive", true); // this is to populate the tab content
     }
 }

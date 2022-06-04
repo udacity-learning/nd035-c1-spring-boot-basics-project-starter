@@ -48,6 +48,8 @@ public class HomeController {
         model.addAttribute("credentials", credentials);
         model.addAttribute("newnote", new NoteForm());
         model.addAttribute("newcredential", new CredentialForm());
+        model.addAttribute("activeTab1", true); // this one is to keep current tab active
+        model.addAttribute("fileTabPaneActive", true);
         return "home";
     }
 

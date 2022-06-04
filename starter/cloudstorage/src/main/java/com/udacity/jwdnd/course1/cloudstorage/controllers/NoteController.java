@@ -46,6 +46,7 @@ public class NoteController {
         model.addAttribute("notes", WorkFlowHelper.getUserNotes());
         model.addAttribute("credentials", WorkFlowHelper.getUserCredentials());
         model.addAttribute("newcredential", new CredentialForm());
-
+        model.addAttribute("activeTab2", true); // this one is to keep current (Notes) tab active
+        model.addAttribute("noteTabPaneActive", true);
     }
 }
