@@ -39,6 +39,9 @@
                                 <div id="fileUploadError" class="alert alert-danger" th:if="${fileUploadError}">
                                     <span>File upload failed. Try again!</span>
                                 </div>
+                                <div id="fileSizeExceeds" class="alert alert-danger" th:if="${fileSizeExceeds}">
+                                    <span>Upload failed! Upload size exceeded. File size must be less than 10MB</span>
+                                </div>
                                 <div class="row" style="margin: 1em;">
                                     <div class="col-sm-2">
                                         <label for="fileUpload">Upload a New File:</label>

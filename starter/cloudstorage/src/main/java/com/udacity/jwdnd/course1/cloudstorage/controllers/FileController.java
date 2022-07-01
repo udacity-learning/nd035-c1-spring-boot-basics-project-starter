@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@ControllerAdvice
 public class FileController {
 
     private Logger logger = LoggerFactory.getLogger(FileController.class);
@@ -31,6 +33,8 @@ public class FileController {
 
     @PostMapping("/uploadfile")
     public String uploadFile(@RequestParam("fileUpload") MultipartFile uploadedFile, Model model){
+
+
 
         Integer fileId=null;
         boolean filenameExists=false;
@@ -94,5 +98,16 @@ public class FileController {
         model.addAttribute("newcredential", new CredentialForm());
         model.addAttribute("activeTab1", true); // this one is to keep current (Files) tab active
         model.addAttribute("fileTabPaneActive", true); // this is to populate the tab content
+    }
+
+
+    // Springboot by default allows file upload upto 10MB. Large file size capability can be figured in application.yml
+    // Below code is to handle MaxUploadSizeExceededException
+    // @ControllerAdvice at the top will automatically inject this method when exception occurs
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public String handleFileUploadException(Model model){
+        model.addAttribute("fileSizeExceeds", true);
+        loadDataForDisplay(model);
+        return "home";
     }
 }
